@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Trip Planner & Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i data-lucide="plane-takeoff" class="text-blue-600 w-8 h-8"></i>
+                <span class="text-xl font-bold tracking-tight text-slate-900">Dashboard</span>
+            </div>
+            <nav class="flex space-x-1 sm:space-x-4">
+                
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <section id="finance-tab" class="space-y-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="wallet"></i></div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Funds Provided</p>
+                        <h3 id="total-funds" class="text-2xl font-bold text-slate-900">₹0.00</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-rose-50 text-rose-600 rounded-xl"><i data-lucide="receipt"></i></div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Expenses Logged</p>
+                        <h3 id="total-expenses" class="text-2xl font-bold text-slate-900">₹0.00</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4 sm:col-span-2 lg:col-span-1">
+                    <div class="p-3 bg-blue-50 text-blue-600 rounded-xl"><i data-lucide="scale"></i></div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Remaining Balance</p>
+                        <h3 id="remaining-balance" class="text-2xl font-bold text-slate-900">₹0.00</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h2 id="form-title" class="text-lg font-bold text-slate-900 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i> Data Entry</h2>
+                    <form id="finance-form" class="space-y-4" onsubmit="handleFinanceSubmit(event)">
+                        <input type="hidden" id="entry-id">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Entry Type</label>
+                            <select id="entry-type" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="Fund">Fund (Income)</option>
+                                <option value="Expense">Expense (Outflow)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Description</label>
+                            <input type="text" id="entry-desc" placeholder="e.g., Hotel Booking, Personal Fund" class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Amount</label>
+                            <input type="number" step="0.01" id="entry-amount" placeholder="0.00" class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Source</label>
+                            <input type="text" id="entry-payer" placeholder="Who funded/paid this?" class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Date</label>
+                            <input type="date" id="entry-date" class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <button type="submit" id="submit-finance-btn" class="w-full bg-blue-600 text-white font-medium py-3 rounded-xl hover:bg-blue-700 transition duration-200">Save Transaction</button>
+                        <button type="button" id="cancel-edit-btn" onclick="resetFinanceForm()" class="hidden w-full bg-slate-100 text-slate-600 font-medium py-2 rounded-xl hover:bg-slate-200 transition">Cancel Edit</button>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-2 space-y-8">
+                    
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-emerald-50/40">
+                            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i data-lucide="arrow-down-circle" class="text-emerald-600 w-5 h-5"></i> Trip Funding
+                            </h2>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full" id="funds-count">0 Records</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-400 tracking-wider">
+                                        <th class="px-6 py-3">Description</th>
+                                        <th class="px-6 py-3">Amount</th>
+                                        <th class="px-6 py-3">Funder / Source</th>
+                                        <th class="px-6 py-3">Date</th>
+                                        <th class="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="funds-table-body" class="divide-y divide-slate-100 text-sm">
+                                    <tr><td colspan="5" class="px-6 py-4 text-center text-slate-400">Loading funding database...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-rose-50/40">
+                            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i data-lucide="arrow-up-circle" class="text-rose-600 w-5 h-5"></i> Trip Expenses Log
+                            </h2>
+                            <span class="text-xs bg-rose-100 text-rose-800 font-semibold px-2.5 py-1 rounded-full" id="expenses-count">0 Records</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-400 tracking-wider">
+                                        <th class="px-6 py-3">Description</th>
+                                        <th class="px-6 py-3">Amount</th>
+                                        <th class="px-6 py-3">Paid To / Payer</th>
+                                        <th class="px-6 py-3">Date</th>
+                                        <th class="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenses-table-body" class="divide-y divide-slate-100 text-sm">
+                                    <tr><td colspan="5" class="px-6 py-4 text-center text-slate-400">Loading expense database...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    
+    </main>
+
+    <script>
+        // YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL:
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIHK7UHEmU7ejBAbShNiHvrl838kjsGOYzr3nGvN5Q6qxrP-3LYcPansuZOGyB1Zj8QQ/exec";
+
+        let financeData = [];
+        let routeData = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            fetchFinanceData();
+            fetchRouteData();
+        });
+
+        function switchTab(tab) {
+            document.getElementById('finance-tab').classList.add('hidden');
+            document.getElementById('route-tab').classList.add('hidden');
+            document.getElementById(`${tab}-tab`).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'text-blue-600');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+            });
+            
+            const activeBtn = tab === 'finance' ? document.getElementById('btn-finance') : document.getElementById('btn-route');
+            activeBtn.classList.add('bg-blue-50', 'text-blue-600');
+            activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        }
+
+        // ================= FINANCIAL OPERATIONS (CRUD) =================
+        async function fetchFinanceData() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?sheet=Expenses`);
+                financeData = await response.json();
+                renderFinanceTables();
+                calculateMetrics();
+            } catch (err) { 
+                console.error("Error retrieving ledger details:", err); 
+            }
+        }
+
+        function calculateMetrics() {
+            let funds = 0, expenses = 0;
+            financeData.forEach(item => {
+                const amt = parseFloat(item.Amount) || 0;
+                if(item.Type === "Fund") funds += amt;
+                else if(item.Type === "Expense") expenses += amt;
+            });
+            document.getElementById('total-funds').innerText = `₹${funds.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            document.getElementById('total-expenses').innerText = `₹${expenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            document.getElementById('remaining-balance').innerText = `₹${(funds - expenses).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        }
+
+        function renderFinanceTables() {
+            const fundsTbody = document.getElementById('funds-table-body');
+            const expensesTbody = document.getElementById('expenses-table-body');
+            
+            fundsTbody.innerHTML = '';
+            expensesTbody.innerHTML = '';
+            
+            // Filter data arrays
+            const fundsList = financeData.filter(item => item.Type === "Fund");
+            const expensesList = financeData.filter(item => item.Type === "Expense");
+            
+            document.getElementById('funds-count').innerText = `${fundsList.length} Records`;
+            document.getElementById('expenses-count').innerText = `${expensesList.length} Records`;
+
+            // Render Funds Table
+            if(fundsList.length === 0) {
+                fundsTbody.innerHTML = '<tr><td colspan="5" class="px-6 py-6 text-center text-slate-400">No funding records discovered.</td></tr>';
+            } else {
+                fundsList.forEach(item => {
+                    const displayDate = item.Date ? new Date(item.Date).toLocaleDateString() : '';
+                    fundsTbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/70 transition">
+                            <td class="px-6 py-4 text-slate-700 font-medium">${item.Description}</td>
+                            <td class="px-6 py-4 font-bold text-emerald-600">₹${parseFloat(item.Amount).toFixed(2)}</td>
+                            <td class="px-6 py-4 text-slate-500">${item["Payer/Funder"] || item["Payer_Funder"] || ''}</td>
+                            <td class="px-6 py-4 text-slate-500">${displayDate}</td>
+                            <td class="px-6 py-4 text-right space-x-2">
+                                <button onclick="editFinanceItem('${item.ID}')" class="text-blue-600 hover:text-blue-900 font-semibold transition">Edit</button>
+                                <button onclick="deleteFinanceItem('${item.ID}')" class="text-rose-600 hover:text-rose-900 font-semibold transition">Delete</button>
+                            </td>
+                        </tr>`;
+                });
+            }
+
+            // Render Expenses Table
+            if(expensesList.length === 0) {
+                expensesTbody.innerHTML = '<tr><td colspan="5" class="px-6 py-6 text-center text-slate-400">No expenses recorded yet.</td></tr>';
+            } else {
+                expensesList.forEach(item => {
+                    const displayDate = item.Date ? new Date(item.Date).toLocaleDateString() : '';
+                    expensesTbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/70 transition">
+                            <td class="px-6 py-4 text-slate-700 font-medium">${item.Description}</td>
+                            <td class="px-6 py-4 font-bold text-rose-600">₹${parseFloat(item.Amount).toFixed(2)}</td>
+                            <td class="px-6 py-4 text-slate-500">${item["Payer/Funder"] || item["Payer_Funder"] || ''}</td>
+                            <td class="px-6 py-4 text-slate-500">${displayDate}</td>
+                            <td class="px-6 py-4 text-right space-x-2">
+                                <button onclick="editFinanceItem('${item.ID}')" class="text-blue-600 hover:text-blue-900 font-semibold transition">Edit</button>
+                                <button onclick="deleteFinanceItem('${item.ID}')" class="text-rose-600 hover:text-rose-900 font-semibold transition">Delete</button>
+                            </td>
+                        </tr>`;
+                });
+            }
+        }
+
+        async function handleFinanceSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-finance-btn');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            const id = document.getElementById('entry-id').value;
+            const action = id ? "update" : "create";
+            
+            const payload = {
+                action: action,
+                sheet: "Expenses",
+                id: id || undefined,
+                data: [
+                    document.getElementById('entry-type').value,
+                    document.getElementById('entry-desc').value,
+                    parseFloat(document.getElementById('entry-amount').value),
+                    document.getElementById('entry-payer').value,
+                    document.getElementById('entry-date').value
+                ]
+            };
+
+            try {
+                await fetch(SCRIPT_URL, { 
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload) 
+                });
+                
+                resetFinanceForm();
+                setTimeout(() => {
+                    fetchFinanceData();
+                    btn.innerText = "Save Transaction";
+                    btn.disabled = false;
+                }, 1500);
+            } catch (err) { 
+                console.error("Error saving submission details:", err);
+                btn.innerText = "Save Transaction";
+                btn.disabled = false;
+            }
+        }
+
+        function editFinanceItem(id) {
+            const record = financeData.find(item => item.ID.toString() === id.toString());
+            if (!record) return;
+            document.getElementById('entry-id').value = record.ID;
+            document.getElementById('entry-type').value = record.Type;
+            document.getElementById('entry-desc').value = record.Description;
+            document.getElementById('entry-amount').value = record.Amount;
+            document.getElementById('entry-payer').value = record["Payer/Funder"] || record["Payer_Funder"] || '';
+            
+            if (record.Date) {
+                const dateObj = new Date(record.Date);
+                const formattedDate = dateObj.toISOString().split('T')[0];
+                document.getElementById('entry-date').value = formattedDate;
+            }
+            
+            document.getElementById('form-title').innerText = "Modify Data Entry";
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+        }
+
+        function resetFinanceForm() {
+            document.getElementById('finance-form').reset();
+            document.getElementById('entry-id').value = '';
+            document.getElementById('form-title').innerText = "Log Ledger Entry";
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        }
+
+        async function deleteFinanceItem(id) {
+            if(confirm("Confirm deletion process for this row?")) {
+                try {
+                    await fetch(SCRIPT_URL, { 
+                        method: "POST", 
+                        mode: "no-cors",
+                        body: JSON.stringify({ action: "delete", sheet: "Expenses", id: id }) 
+                    });
+                    setTimeout(fetchFinanceData, 1200);
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        // ================= ROUTE TIMELINE OPERATIONS =================
+        async function fetchRouteData() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?sheet=Route`);
+                routeData = await response.json();
+                routeData.sort((a, b) => parseInt(a.StopOrder) - parseInt(b.StopOrder));
+                renderRouteTimeline();
+            } catch (err) { console.error("Error setting itinerary framework:", err); }
+        }
+
+        function renderRouteTimeline() {
+            const container = document.getElementById('route-list');
+            container.innerHTML = '';
+            
+            if (!routeData || routeData.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-400 p-4 text-center">No waypoints defined yet.</p>`;
+                return;
+            }
+            
+            routeData.forEach(item => {
+                container.innerHTML += `
+                    <div class="flex items-start justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-blue-400 transition">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 flex items-center justify-center bg-blue-600 text-white rounded-full text-xs font-bold mt-0.5">${item.StopOrder}</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">${item.Location}</h4>
+                                <p class="text-xs text-slate-500 mt-1">${item.Notes || 'No itinerary insights provided.'}</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3 text-sm">
+                            <button onclick="triggerMapRouting('${item.Location.replace(/'/g, "\\'")}')" class="text-emerald-600 hover:underline font-medium flex items-center gap-1"><i data-lucide="navigation" class="w-3.5 h-3.5"></i> Maps</button>
+                            <button onclick="deleteRouteItem('${item.ID}')" class="text-rose-600 hover:underline font-medium">Remove</button>
+                        </div>
+                    </div>`;
+            });
+            lucide.createIcons();
+            if(routeData.length > 0) triggerMapRouting(routeData[0].Location);
+        }
+
+        async function handleRouteSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-route-btn');
+            btn.innerText = "Saving Waypoint...";
+            btn.disabled = true;
+
+            const payload = {
+                action: "create",
+                sheet: "Route",
+                data: [
+                    document.getElementById('route-location').value,
+                    parseInt(document.getElementById('route-order').value),
+                    document.getElementById('route-notes').value
+                ]
+            };
+            
+            try {
+                await fetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    mode: "no-cors",
+                    body: JSON.stringify(payload) 
+                });
+                document.getElementById('route-form').reset();
+                setTimeout(() => {
+                    fetchRouteData();
+                    btn.innerText = "Save Destination";
+                    btn.disabled = false;
+                }, 1500);
+            } catch(err) {
+                console.error(err);
+                btn.innerText = "Save Destination";
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteRouteItem(id) {
+            if(confirm("Permanently erase destination waypoint?")) {
+                try {
+                    await fetch(SCRIPT_URL, { 
+                        method: "POST", 
+                        mode: "no-cors",
+                        body: JSON.stringify({ action: "delete", sheet: "Route", id: id }) 
+                    });
+                    setTimeout(fetchRouteData, 1200);
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        function triggerMapRouting(location) {
+            if(!location) return;
+            const embeddedMapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(location)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+            document.getElementById('map-frame').src = embeddedMapUrl;
+        }
+    </script>
+</body>
+</html>
